@@ -6,14 +6,13 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 15:56:36 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 11:01:40 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 12:15:36 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BITCOIN_EXCHANGE_HPP
 # define BITCOIN_EXCHANGE_HPP
 
-# include <algorithm>
 # include <map>
 # include <string>
 
@@ -23,7 +22,7 @@ public:
 	BitcoinExchange(std::string& data_filename);
 	BitcoinExchange(const BitcoinExchange &other);
 	BitcoinExchange &operator=(const BitcoinExchange &other);
-	~BitcoinExchange(void);
+	virtual ~BitcoinExchange(void);
 
 	double			doConvertion(int date, double amount) const;
 	void			ConvertFile(std::string filename) const;

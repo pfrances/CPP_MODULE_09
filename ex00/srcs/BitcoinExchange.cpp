@@ -6,14 +6,13 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 11:24:50 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 12:16:42 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <cstdlib>
 #include <sstream>
 
@@ -59,6 +58,10 @@ BitcoinExchange&	BitcoinExchange::operator=(const BitcoinExchange& other) {
 	}
 	std::cout << "[BitcoinExchange] asignment called." << std::endl;
 	return *this;
+}
+
+BitcoinExchange::~BitcoinExchange( void ) {
+	std::cout << "[BitcoinExchange] destructor called." << std::endl;
 }
 
 int BitcoinExchange::StringDateToInt(std::string& date) const {
@@ -159,9 +162,6 @@ void BitcoinExchange::ConvertFile(std::string filename) const {
 	std::cout << "	[Converting " << filename << "] done." << std::endl;
 }
 
-BitcoinExchange::~BitcoinExchange( void ) {
-	std::cout << "[BitcoinExchange] destructor called." << std::endl;
-}
 
 const char* BitcoinExchange::InvalidLineFormatException::what() const throw() {
 	return "Invalid line format";
