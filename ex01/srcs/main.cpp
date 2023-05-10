@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 16:29:05 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 22:40:48 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 23:04:56 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	main(int argc, char **argv) {
 		try {
 			RPN::CalculateRpn(RpnExpression);
 		} catch (std::exception& e) {
-			std::cerr <<  "[Error]: " << e.what() << std::endl;
+			std::cout <<  "[Error]: " << e.what() << std::endl;
 		}
 		if (i < argc - 1) {
 			std::cout << std::endl;

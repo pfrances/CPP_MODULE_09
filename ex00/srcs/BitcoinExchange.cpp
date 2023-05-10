@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 12:16:42 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 23:05:30 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ BitcoinExchange::BitcoinExchange( void ) : data_() {
 BitcoinExchange::BitcoinExchange(std::string& data_filename) {
 	std::ifstream data(data_filename.c_str());
 	if (!data.is_open()) {
-		std::cerr << "⚠ Failed to open " << data_filename <<std::endl;
+		std::cout << "⚠ Failed to open " << data_filename <<std::endl;
 		throw std::exception();
 	}
 
@@ -41,7 +41,7 @@ BitcoinExchange::BitcoinExchange(std::string& data_filename) {
 				earliest_date_ = date;
 			}
 		} catch(const std::exception& e) {
-			std::cerr << "⚠ [" << data_filename << "] Error: '" << line << "': " << e.what() << '\n';
+			std::cout << "⚠ [" << data_filename << "] Error: '" << line << "': " << e.what() << '\n';
 		}
 	}
 	data.close();
@@ -135,7 +135,7 @@ double BitcoinExchange::doConvertion(int date, double amount) const {
 void BitcoinExchange::ConvertFile(std::string filename) const {
 	std::ifstream input(filename.c_str());
 	if (!input.is_open()) {
-		std::cerr << "⚠ Failed to open " << filename << std::endl;
+		std::cout << "⚠ Failed to open " << filename << std::endl;
 		return ;
 	}
 	std::cout << "	[Converting " << filename << "] start." << std::endl;
@@ -155,7 +155,7 @@ void BitcoinExchange::ConvertFile(std::string filename) const {
 			}
 			std::cout << std::endl;
 		} catch(const std::exception& e) {
-			std::cerr << "⚠ [" << filename << "] Error: '" << line << "': " << e.what() << '\n';
+			std::cout << "⚠ [" << filename << "] Error: '" << line << "': " << e.what() << '\n';
 		}
 	}
 	input.close();
