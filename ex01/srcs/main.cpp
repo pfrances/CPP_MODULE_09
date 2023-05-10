@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 16:29:05 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 15:12:28 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 22:40:48 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ int	main(int argc, char **argv) {
 		std::cout << "usage: " << argv[0] << " [inverted Polish mathematical expression]" << std::endl;
 		return 1;
 	}
-	RPN rpn();
 	for (int i = 1; i < argc; i++) {
 		std::string RpnExpression = argv[i];
 		try {

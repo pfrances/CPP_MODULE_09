@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 15:47:01 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 22:51:37 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ RPN::RPN( void ) {
 }
 
 RPN::RPN(const RPN& other) {
-	*this = other;
+	(void)other;
 	std::cout << "[RPN] copy constructor called." << std::endl;
 }
 
 RPN&	RPN::operator=(const RPN& other) {
-	*this = other;
+	(void)other;
 	std::cout << "[RPN] asignment called." << std::endl;
 	return *this;
 }
@@ -132,8 +132,10 @@ void	RPN::CalculateRpn(std::string& expression) {
 	if (NbStack_.size() != 1 || OpStack_.size() != 0)
 		throw InvalidExpressionException();
 	std::cout << "[One Line Calculation]: " << OneLineCalculation_.str() << std::endl;
-	std::cout << "[Intermediate Calculation]:" << std::endl;
-	std::cout << IntermediateCalculation_.str();
+	if (IntermediateCalculation_.str().length() != 0) {
+		std::cout << "[Intermediate Calculation]:" << std::endl;
+		std::cout << IntermediateCalculation_.str();
+	}
 	std::cout << "[Result]: " << NbStack_.top() << std::endl;
 }
 

@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 22:33:38 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/10 23:00:57 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,12 @@ PmergeMe::PmergeMe( void ) {
 }
 
 PmergeMe::PmergeMe(const PmergeMe& other) {
-	*this = other;
+	(void)other;
 	std::cout << "[PmergeMe] copy constructor called." << std::endl;
 }
 
 PmergeMe&	PmergeMe::operator=(const PmergeMe& other) {
-	*this = other;
+	(void)other;
 	std::cout << "[PmergeMe] asignment called." << std::endl;
 	return *this;
 }
