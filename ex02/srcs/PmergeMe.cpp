@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 23:00:57 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 12:39:05 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ PmergeMe::~PmergeMe( void ) {
 	std::cout << "[PmergeMe] destructor called." << std::endl;
 }
 
-void	PmergeMe::Reset(void) {
+void	PmergeMe::reset(void) {
 	vec_.clear();
 	lst_.clear();
 }
@@ -125,7 +125,7 @@ std::string	PmergeMe::PrintDuration(useconds_t duration) {
 
 void	PmergeMe::MergeSort(char **argv) {
 
-	Reset();
+	reset();
 
 	int i = 1;
 	while (argv[i]) {

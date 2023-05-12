@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 22:51:37 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 14:09:44 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,126 +17,128 @@
 #include <limits.h>
 #include <stack>
 
-std::stack<int> RPN::NbStack_;
-std::stack<char> RPN::OpStack_;
-std::ostringstream	RPN::OneLineCalculation_;
-std::ostringstream	RPN::IntermediateCalculation_;
+std::stack<int> RPN::nbStack_;
+std::stack<char> RPN::opStack_;
+std::ostringstream	RPN::intermediateCalculation_;
 
 RPN::RPN( void ) {
-	std::cout << "[RPN] default constructor called." << std::endl;
+	// std::cout << "[RPN] default constructor called." << std::endl;
 }
 
 RPN::RPN(const RPN& other) {
 	(void)other;
-	std::cout << "[RPN] copy constructor called." << std::endl;
+	// std::cout << "[RPN] copy constructor called." << std::endl;
 }
 
 RPN&	RPN::operator=(const RPN& other) {
 	(void)other;
-	std::cout << "[RPN] asignment called." << std::endl;
+	// std::cout << "[RPN] asignment called." << std::endl;
 	return *this;
 }
 
 RPN::~RPN( void ) {
-	std::cout << "[RPN] destructor called." << std::endl;
+	// std::cout << "[RPN] destructor called." << std::endl;
 }
 
-bool RPN::is_operator(char c) {
+bool RPN::isOperator(char c) {
 	return (c == '+' || c == '-' || c == '*' || c == '/');
 }
 
-bool RPN::is_digit(char c) {
+bool RPN::isDigit(char c) {
 	return (c >= '0' && c <= '9');
 }
 
-void	RPN::Reset(void) {
-	while (!NbStack_.empty())
-		NbStack_.pop();
-	while (!OpStack_.empty())
-		OpStack_.pop();
-	OneLineCalculation_.str("");
-	IntermediateCalculation_.str("");
+void	RPN::reset(void) {
+	nbStack_ = std::stack<int>();
+	opStack_ = std::stack<char>();
+	intermediateCalculation_.str("");
 }
 
-int	RPN::DoDivide(int nb1, int nb2) {
+int	RPN::doDivide(int nb1, int nb2) {
 	if (nb2 == 0)
 		throw DivisionByZeroException();
 	return (nb1 / nb2);
 }
 
-int RPN::DoMultiply(int nb1, int nb2) {
+int RPN::doMultiply(int nb1, int nb2) {
 	int64_t result = static_cast<int64_t>(nb1) * nb2;
 	if (result > INT_MAX || result < INT_MIN)
 		throw OverFlowException();
 	return (nb1 * nb2);
 }
 
-int RPN::DoAdd(int nb1, int nb2) {
+int RPN::doAdd(int nb1, int nb2) {
 	int64_t result = static_cast<int64_t>(nb1) + nb2;
 	if (result > INT_MAX || result < INT_MIN)
 		throw OverFlowException();
 	return (nb1 + nb2);
 }
 
-int RPN::DoSubtract(int nb1, int nb2) {
+int RPN::doSubtract(int nb1, int nb2) {
 	int64_t result = static_cast<int64_t>(nb1) - nb2;
 	if (result > INT_MAX || result < INT_MIN)
 		throw OverFlowException();
 	return (nb1 - nb2);
 }
 
-void RPN::DoOperation(void) {
-	int	result;
-	int		nb2 = NbStack_.top();
-	NbStack_.pop();
-	int		nb1 = NbStack_.top();
-	NbStack_.pop();
-	char op = OpStack_.top();
-	OpStack_.pop();
+void RPN::doOperation(void) {
+	int		result;
+
+	int		nb2 = nbStack_.top();
+	nbStack_.pop();
+
+	int		nb1 = nbStack_.top();
+	nbStack_.pop();
+
+	char op = opStack_.top();
+	opStack_.pop();
 
 	if (op == '+')
-		result = DoAdd(nb1, nb2);
+		result = doAdd(nb1, nb2);
 	else if (op == '-')
-		result = DoSubtract(nb1, nb2);
+		result = doSubtract(nb1, nb2);
 	else if (op == '*')
-		result = DoMultiply(nb1, nb2);
+		result = doMultiply(nb1, nb2);
 	else if (op == '/')
-		result = DoDivide(nb1, nb2);
+		result = doDivide(nb1, nb2);
 	else
 		throw InvalidExpressionException();
-	OneLineCalculation_ <<  " " << op << " " << nb2;
-	IntermediateCalculation_ << "	" << nb1 << " " << op << " " << nb2 << " = " << result << std::endl;
-	NbStack_.push(result);
+	if (REVIEW) {
+		intermediateCalculation_ << "	" << nb1 << " " << op << " " << nb2 << " = " << result << std::endl;
+	}
+	nbStack_.push(result);
 }
 
-void	RPN::CalculateRpn(std::string& expression) {
-	Reset();
-	if (expression.length() == 0 || expression.find_first_not_of(" \t") == std::string::npos)
+void	RPN::calculateRpn(std::string& expression) {
+	reset();
+	if (expression.length() == 0)
 		throw EmptyExpressionException();
-	for (size_t i = 0; i < expression.length(); i++) {
-		if (expression.at(i) == ' ' || expression.at(i) == '\t') {
+	std::string::const_iterator it = expression.begin();
+	for (; it != expression.end(); it++) {
+		if (*it == ' ' || *it == '\t') {
 			continue ;
-		} else if (is_operator(expression.at(i))) {
-			OpStack_.push(expression.at(i));
-		} else if (is_digit(expression.at(i))) {
-			NbStack_.push(expression.at(i) - '0');
-			if (OneLineCalculation_.str().length() == 0)
-				OneLineCalculation_ << expression.at(i);
+		} else if (isOperator(*it)) {
+			opStack_.push(*it);
+			if (nbStack_.size() >= 2 && opStack_.size() >= 1) {
+				doOperation();
+			} else {
+				throw InvalidExpressionException();
+			}
+		} else if (isDigit(*it)) {
+			nbStack_.push(*it - '0');
 		} else {
 			throw InvalidExpressionException();
 		}
-		if (NbStack_.size() >= 2 && OpStack_.size() >= 1) {
-			DoOperation();
-		}
 	}
-	if (NbStack_.size() != 1 || OpStack_.size() != 0)
+	if (nbStack_.size() != 1 || opStack_.size() != 0)
 		throw InvalidExpressionException();
-	std::cout << "[One Line Calculation]: " << OneLineCalculation_.str() << std::endl;
-	if (IntermediateCalculation_.str().length() != 0) {
+	if (REVIEW && intermediateCalculation_.str().length() != 0) {
 		std::cout << "[Intermediate Calculation]:" << std::endl;
-		std::cout << IntermediateCalculation_.str();
+		std::cout << intermediateCalculation_.str();
+		std::cout << "[Result]: " << nbStack_.top() << std::endl;
+	} else {
+		std::cout << nbStack_.top() << std::endl;
 	}
-	std::cout << "[Result]: " << NbStack_.top() << std::endl;
 }
 
 const char* RPN::InvalidExpressionException::what() const throw() {

@@ -6,7 +6,7 @@
 #    By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/26 11:07:21 by pfrances          #+#    #+#              #
-#    Updated: 2023/05/12 10:09:15 by pfrances         ###   ########.fr        #
+#    Updated: 2023/05/12 13:02:20 by pfrances         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,6 +40,9 @@ re: fclean all
 
 debug: CXXFLAGS += -g -fsanitize=address
 debug: re
+
+review: CXXFLAGS += -D REVIEW=1
+review: re
 
 .PHONY: all clean fclean re debug
 

@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/10 16:47:07 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 22:33:43 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 12:39:05 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ private:
 
 	static bool				IsValidNumber(char *nb_str);
 	static bool				HasDoublon(void);
-	static void				Reset(void);
+	static void				reset(void);
 
 	static void				VectorMergeSort(std::vector<int> &vec);
 	static void				VectorMerge(std::vector<int> &leftVector, std::vector<int> &rightVector, std::vector<int> &vec);
