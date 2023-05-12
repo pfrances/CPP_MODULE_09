@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 16:29:05 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 11:43:15 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 12:33:58 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,16 @@ int	main(int argc, char **argv) {
 		std::cout << "usage: " << argv[0] << " [input file]" << std::endl;
 		return 1;
 	}
-	std::string data_filename = "data.csv";
-	BitcoinExchange btc(data_filename);
-	for (int i = 1; i < argc; i++) {
-		btc.ConvertFile(argv[i]);
-		std::cout << std::endl;
+	std::string dataFilename = "data.csv";
+	try {
+		BitcoinExchange btc(dataFilename);
+		for (int i = 1; i < argc; i++) {
+			btc.convertFile(argv[i]);
+			std::cout << std::endl;
+		}
+	} catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
+		return 1;
 	}
 	return 0;
 }

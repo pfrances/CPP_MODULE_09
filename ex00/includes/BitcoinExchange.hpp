@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 15:56:36 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 12:15:36 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 12:33:27 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,22 @@ public:
 	virtual ~BitcoinExchange(void);
 
 	double			doConvertion(int date, double amount) const;
-	void			ConvertFile(std::string filename) const;
+	void			convertFile(std::string filename) const;
 
 private:
 	std::map<int, double>	data_;
-	int						earliest_date_;
-	int						latest_date_;
+	int						earliestDate_;
+	int						latestDate_;
 
-	int				StringDateToInt(std::string& date) const;
-	std::string		IntDateToString(int date) const;
-	void			ParseLine(std::string& line, char delimiter, int& date, double& value) const;
+	int				stringDateToInt(std::string& date) const;
+	std::string		intDateToString(int date) const;
+	bool			checkDate(int year, int month, int day) const;
+	void			parseLine(std::string& line, char delimiter, int& date, double& value) const;
 
 	class InvalidDateFormatException : public std::exception {
+		virtual const char* what() const throw();
+	};
+	class InvalidValueFormatException : public std::exception {
 		virtual const char* what() const throw();
 	};
 	class NotPositiveNumberException : public std::exception {
@@ -46,6 +50,12 @@ private:
 		virtual const char* what() const throw();
 	};
 	class InvalidLineFormatException : public std::exception {
+		virtual const char* what() const throw();
+	};
+	class NoDatabaseException : public std::exception {
+		virtual const char* what() const throw();
+	};
+	class EmptyLineException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

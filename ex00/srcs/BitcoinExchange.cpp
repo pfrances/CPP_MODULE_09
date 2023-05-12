@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/10 23:05:30 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 12:35:55 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,54 +17,81 @@
 #include <sstream>
 
 BitcoinExchange::BitcoinExchange( void ) : data_() {
-	std::cout << "[BitcoinExchange] default constructor called." << std::endl;
+	//std::cout << "[BitcoinExchange] default constructor called." << std::endl;
 }
 
-BitcoinExchange::BitcoinExchange(std::string& data_filename) {
-	std::ifstream data(data_filename.c_str());
+BitcoinExchange::BitcoinExchange(std::string& dataFilename) {
+	std::ifstream data(dataFilename.c_str());
 	if (!data.is_open()) {
-		std::cout << "⚠ Failed to open " << data_filename <<std::endl;
-		throw std::exception();
+		throw BitcoinExchange::NoDatabaseException();
 	}
 
 	std::string	line;
 	int			date;
 	double		price;
+	size_t		lineNum = 1;
 
 	std::getline(data, line);
+
 	while (std::getline(data, line)) {
 		try {
-			ParseLine(line, ',', date, price);
+			parseLine(line, ',', date, price);
 			data_[date] = price;
-			latest_date_ = date;
+			latestDate_ = date;
 			if (data_.size() == 1) {
-				earliest_date_ = date;
+				earliestDate_ = date;
 			}
 		} catch(const std::exception& e) {
-			std::cout << "⚠ [" << data_filename << "] Error: '" << line << "': " << e.what() << '\n';
+			std::cout << "⚠ [" << dataFilename << ":l" << lineNum << "] Error: '" << line << "': " << e.what() << '\n';
 		}
+		lineNum++;
 	}
 	data.close();
-	std::cout << "[BitcoinExchange] parameter constructor called." << std::endl;
+	//std::cout << "[BitcoinExchange] parameter constructor called." << std::endl;
 }
 
 BitcoinExchange::BitcoinExchange(const BitcoinExchange& other) : data_(other.data_) {
-	std::cout << "[BitcoinExchange] copy constructor called." << std::endl;
+	//std::cout << "[BitcoinExchange] copy constructor called." << std::endl;
 }
 
 BitcoinExchange&	BitcoinExchange::operator=(const BitcoinExchange& other) {
 	if (this != &other) {
 		data_ = other.data_;
 	}
-	std::cout << "[BitcoinExchange] asignment called." << std::endl;
+	//std::cout << "[BitcoinExchange] asignment called." << std::endl;
 	return *this;
 }
 
 BitcoinExchange::~BitcoinExchange( void ) {
-	std::cout << "[BitcoinExchange] destructor called." << std::endl;
+	//std::cout << "[BitcoinExchange] destructor called." << std::endl;
 }
 
-int BitcoinExchange::StringDateToInt(std::string& date) const {
+bool BitcoinExchange::checkDate(int year, int month, int day) const {
+	if (year < 0) {
+		return false;
+	}
+	if (month < 1 || month > 12) {
+		return false;
+	}
+	if (day < 1 || day > 31) {
+		return false;
+	}
+	if (month == 2 && day > 28) {
+		if (day == 29 && year % 4 == 0) {
+			if (year % 100 == 0 && year % 400 != 0) {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30) {
+		return false;
+	}
+	return true;
+}
+
+int BitcoinExchange::stringDateToInt(std::string& date) const {
 	if (date.length() < 10) {
 		throw BitcoinExchange::InvalidDateFormatException();
 	}
@@ -77,13 +104,26 @@ int BitcoinExchange::StringDateToInt(std::string& date) const {
 			throw BitcoinExchange::InvalidDateFormatException();
 		}
 	}
-	int year = std::atoi(date.substr(0, 4).c_str());
-	int month = std::atoi(date.substr(5, 2).c_str());
-	int day = std::atoi(date.substr(8, 2).c_str());
+	char *endPtr;
+	int year = std::strtol(date.substr(0, 4).c_str(), &endPtr, 10);
+	if (*endPtr != '\0') {
+		throw BitcoinExchange::InvalidDateFormatException();
+	}
+	int month = std::strtol(date.substr(5, 2).c_str(), &endPtr, 10);
+	if (*endPtr != '\0') {
+		throw BitcoinExchange::InvalidDateFormatException();
+	}
+	int day = std::strtol(date.substr(8, 2).c_str(), &endPtr, 10);
+	if (*endPtr != '\0') {
+		throw BitcoinExchange::InvalidDateFormatException();
+	}
+	if (checkDate(year, month, day) == false) {
+		throw BitcoinExchange::InvalidDateFormatException();
+	}
 	return year << 16 | month << 8 | day;
 }
 
-std::string BitcoinExchange::IntDateToString(int date) const {
+std::string BitcoinExchange::intDateToString(int date) const {
 	int year = date >> 16;
 	int month = (date >> 8) & 0xff;
 	int day = date & 0xff;
@@ -97,22 +137,28 @@ std::string BitcoinExchange::IntDateToString(int date) const {
 		ss << "0";
 	}
 	ss << day;
-	std::string date_str = ss.str();
-	return date_str;
+	std::string dateStr = ss.str();
+	return dateStr;
 }
 
-void BitcoinExchange::ParseLine(std::string& line, char delimiter, int& date, double& value) const {
-	std::string date_str;
-	std::string value_str;
+void BitcoinExchange::parseLine(std::string& line, char delimiter, int& date, double& value) const {
+	if (line.length() == 0) {
+		throw BitcoinExchange::EmptyLineException();
+	}
+	std::string dateStr;
+	std::string valueStr;
 	size_t pos = line.find(delimiter);
 	if (pos == std::string::npos) {
 		throw BitcoinExchange::InvalidLineFormatException();
 	}
-	date_str = line.substr(0, pos);
-	value_str = line.substr(pos + 1, line.length());
-	date = StringDateToInt(date_str);
-	value = std::atof(value_str.c_str());
-	if (value < 0) {
+	dateStr = line.substr(0, pos);
+	valueStr = line.substr(pos + 1, line.length());
+	date = stringDateToInt(dateStr);
+	char *endPtr;
+	value = std::strtod(valueStr.c_str(), &endPtr);
+	if (*endPtr != '\0') {
+		throw BitcoinExchange::InvalidValueFormatException();
+	} else if (value < 0) {
 		throw BitcoinExchange::NotPositiveNumberException();
 	} else if (value > 1000 && delimiter == '|') {
 		throw BitcoinExchange::TooLargeNumberException();
@@ -120,19 +166,14 @@ void BitcoinExchange::ParseLine(std::string& line, char delimiter, int& date, do
 }
 
 double BitcoinExchange::doConvertion(int date, double amount) const {
-	if (date <= earliest_date_) {
-		return data_.at(earliest_date_) * amount;
+	std::map<int, double>::const_iterator it_data_ = data_.lower_bound(date);
+	if (it_data_ != data_.begin() && it_data_->first > date) {
+		it_data_--;
 	}
-	else if (date >= latest_date_) {
-		return data_.at(latest_date_) * amount;
-	}
-	while (data_.find(date) == data_.end()) {
-		date--;
-	}
-	return data_.at(date) * amount;
+	return it_data_->second * amount;
 }
 
-void BitcoinExchange::ConvertFile(std::string filename) const {
+void BitcoinExchange::convertFile(std::string filename) const {
 	std::ifstream input(filename.c_str());
 	if (!input.is_open()) {
 		std::cout << "⚠ Failed to open " << filename << std::endl;
@@ -143,25 +184,31 @@ void BitcoinExchange::ConvertFile(std::string filename) const {
 	std::string line;
 	int		date;
 	double	amount;
+	int		lineNum = 1;
 	std::getline(input, line);
 	while (std::getline(input, line)) {
 		try {
-			ParseLine(line, '|', date, amount);
-			std::cout << IntDateToString(date) << " ==> " << amount << " = " << doConvertion(date, amount);
-			if (date < this->earliest_date_) {
-				std::cout << " ⇦ Warning: earliest date is " << IntDateToString(this->earliest_date_);
-			} else if (date > this->latest_date_) {
-				std::cout << " ⇦ Warning: latest date is " << IntDateToString(this->latest_date_);
+			parseLine(line, '|', date, amount);
+			std::cout << intDateToString(date) << " ==> " << amount << " = " << doConvertion(date, amount);
+			if (date < this->earliestDate_) {
+				std::cout << " ⇦ Warning: earliest date is " << intDateToString(this->earliestDate_);
+			} else if (date > this->latestDate_) {
+				std::cout << " ⇦ Warning: latest date is " << intDateToString(this->latestDate_);
 			}
 			std::cout << std::endl;
 		} catch(const std::exception& e) {
-			std::cout << "⚠ [" << filename << "] Error: '" << line << "': " << e.what() << '\n';
+			std::cout << "⚠ [" << filename << ":l" << lineNum << "] Error: '" << line << "': " << e.what() << '\n';
 		}
+		lineNum++;
+
 	}
 	input.close();
 	std::cout << "	[Converting " << filename << "] done." << std::endl;
 }
 
+const char* BitcoinExchange::EmptyLineException::what() const throw() {
+	return "Empty line";
+}
 
 const char* BitcoinExchange::InvalidLineFormatException::what() const throw() {
 	return "Invalid line format";
@@ -171,10 +218,18 @@ const char* BitcoinExchange::InvalidDateFormatException::what() const throw() {
 	return "Invalid date format";
 }
 
+const char* BitcoinExchange::InvalidValueFormatException::what() const throw() {
+	return "Invalid value format";
+}
+
 const char* BitcoinExchange::NotPositiveNumberException::what() const throw() {
 	return "Not positive number";
 }
 
 const char* BitcoinExchange::TooLargeNumberException::what() const throw() {
 	return "Too large number";
+}
+
+const char* BitcoinExchange::NoDatabaseException::what() const throw() {
+	return "⚠ Failed to open data.csv";
 }
