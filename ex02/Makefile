@@ -6,7 +6,7 @@
 #    By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/26 11:07:21 by pfrances          #+#    #+#              #
-#    Updated: 2023/05/12 10:09:09 by pfrances         ###   ########.fr        #
+#    Updated: 2023/05/12 15:53:00 by pfrances         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,9 @@ re: fclean all
 debug: CXXFLAGS += -g -fsanitize=address
 debug: re
 
-.PHONY: all clean fclean re debug
+uniq: CXXFLAGS += -D UNIQ=1
+uniq: re
+
+.PHONY: all clean fclean re debug uniq
 
 -include $(DEPS)

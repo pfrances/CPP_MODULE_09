@@ -6,12 +6,11 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/12 12:39:05 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/12 16:26:37 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
-
 #include <iostream>
 #include <algorithm>
 #include <climits>
@@ -19,73 +18,40 @@
 #include <string>
 #include <sstream>
 #include <time.h>
-#include <unistd.h>
 #include <sys/time.h>
 
 std::vector<int>	PmergeMe::vec_;
 std::list<int>		PmergeMe::lst_;
 
 PmergeMe::PmergeMe( void ) {
-	std::cout << "[PmergeMe] default constructor called." << std::endl;
+	// std::cout << "[PmergeMe] default constructor called." << std::endl;
 }
 
 PmergeMe::PmergeMe(const PmergeMe& other) {
 	(void)other;
-	std::cout << "[PmergeMe] copy constructor called." << std::endl;
+	// std::cout << "[PmergeMe] copy constructor called." << std::endl;
 }
 
 PmergeMe&	PmergeMe::operator=(const PmergeMe& other) {
 	(void)other;
-	std::cout << "[PmergeMe] asignment called." << std::endl;
+	// std::cout << "[PmergeMe] asignment called." << std::endl;
 	return *this;
 }
 
 PmergeMe::~PmergeMe( void ) {
-	std::cout << "[PmergeMe] destructor called." << std::endl;
+	// std::cout << "[PmergeMe] destructor called." << std::endl;
 }
 
-void	PmergeMe::reset(void) {
-	vec_.clear();
-	lst_.clear();
-}
-
-bool	PmergeMe::IsValidNumber(char *nb_str) {
-	double result = 0;
-	int i = 0;
-	int	sign = 1;
-	if (nb_str[0] == '+' || nb_str[0] == '-') {
-		if (nb_str[0] == '-') {
-			sign = -1;
-		}
-		i++;
-	}
-	while (nb_str[i]) {
-		if (nb_str[i] < '0' || nb_str[i] > '9')
-			return false;
-		result = result * 10 + (nb_str[i] - '0');
-		if (result > INT_MAX)
-			return false;
-		i++;
-	}
-	if (i == 0)
+bool	PmergeMe::ConvertNbWithCheck(char *nbStr, int *nb) {
+	char *endPtr;
+	*nb = std::strtol(nbStr, &endPtr, 10);
+	if (*endPtr != '\0') {
 		return false;
-	return ((result * sign) >= 0);
-}
-
-bool	PmergeMe::HasDoublon(void) {
-	std::vector<int>::iterator it = vec_.begin();
-	std::vector<int>::iterator ite = vec_.end();
-	while (it != ite) {
-		if (std::count(vec_.begin(), vec_.end(), *it) > 1) {
-			std::cout << "Error: " << *it << " is a doublon." << std::endl;
-			return true;
-		}
-		it++;
 	}
-	return false;
+	return (*nb >= 0);
 }
 
-std::string	PmergeMe::GetVector(void) {
+std::string	PmergeMe::getVector(void) {
 	std::ostringstream VectorContent;
 	std::vector<int>::iterator it = vec_.begin();
 	std::vector<int>::iterator ite = vec_.end();
@@ -98,7 +64,7 @@ std::string	PmergeMe::GetVector(void) {
 	return VectorContent.str();
 }
 
-std::string	PmergeMe::GetList(void) {
+std::string	PmergeMe::getList(void) {
 	std::ostringstream ListContent;
 	std::list<int>::iterator it = lst_.begin();
 	std::list<int>::iterator ite = lst_.end();
@@ -111,7 +77,7 @@ std::string	PmergeMe::GetList(void) {
 	return ListContent.str();
 }
 
-std::string	PmergeMe::PrintDuration(useconds_t duration) {
+std::string	PmergeMe::printDuration(useconds_t duration) {
 	std::ostringstream duration_stream;
 	if (duration < 1000) {
 		duration_stream << duration << " us";
@@ -123,100 +89,122 @@ std::string	PmergeMe::PrintDuration(useconds_t duration) {
 	return duration_stream.str();
 }
 
-void	PmergeMe::MergeSort(char **argv) {
+void	PmergeMe::mergeSort(char **nbArr, int arrSize) {
 
-	reset();
+	vec_ = std::vector<int>(arrSize);
+	lst_ = std::list<int>(arrSize);
 
-	int i = 1;
-	while (argv[i]) {
-		if (IsValidNumber(argv[i]) == false) {
-			std::cout << "Error: '" << argv[i] << "' is not a valid number." << std::endl;
+	int i = 0;
+	int nb;
+
+	std::vector<int>::iterator itVec = vec_.begin();
+	std::list<int>::iterator itLst = lst_.begin();
+	while (nbArr[i]) {
+		if (ConvertNbWithCheck(nbArr[i], &nb) == false) {
+			std::cout << "Error: '" << nbArr[i] << "' is not a valid number." << std::endl;
 			return ;
 		}
-		vec_.push_back(atoi(argv[i]));
-		lst_.push_back(atoi(argv[i]));
+		if (UNIQ && std::find(vec_.begin(), itVec, nb) != itVec) {
+				std::cout << "Error: " << nb << " is a duplicate." << std::endl;
+				return ;
+		}
+		*itVec = nb;
+		*itLst = nb;
+		itVec++;
+		itLst++;
 		i++;
 	}
-	if (HasDoublon() == true)
-		return ;
 
-	std::cout << "Before: " << GetVector() << std::endl;
+	std::cout << "Before: " << getVector() << std::endl;
 
 	struct timeval start_time, end_time;
 	gettimeofday(&start_time, NULL);
-	VectorMergeSort(vec_);
+	vectorMergeSort(vec_);
 	gettimeofday(&end_time, NULL);
 	useconds_t VectorDuration = (end_time.tv_sec - start_time.tv_sec) * 1000000
 		+ (end_time.tv_usec - start_time.tv_usec);
 
 	gettimeofday(&start_time, NULL);
-	ListMergeSort(lst_);
+	listMergeSort(lst_);
 	gettimeofday(&end_time, NULL);
 	useconds_t ListDuration = (end_time.tv_sec - start_time.tv_sec) * 1000000
 		+ (end_time.tv_usec - start_time.tv_usec);
 
-	std::cout << "After:  " << GetList() << std::endl;
-	std::cout << "Time to process a range of: " << vec_.size() << " elements with std::vector : " << PrintDuration(VectorDuration) << std::endl;
-	std::cout << "Time to process a range of: " << lst_.size() << " elements with std::list   : " << PrintDuration(ListDuration) << std::endl;
+	std::cout << "After:  " << getList() << std::endl;
+	std::cout << "Time to process a range of: " << vec_.size() << " elements with std::vector : " << printDuration(VectorDuration) << std::endl;
+	std::cout << "Time to process a range of: " << lst_.size() << " elements with std::list   : " << printDuration(ListDuration) << std::endl;
 }
 
-void	PmergeMe::VectorMerge(std::vector<int> &leftVector, std::vector<int> &rightVector, std::vector<int> &vec) {
-	while (leftVector.size() > 0 && rightVector.size() > 0) {
-		if (leftVector.front() < rightVector.front()) {
-			vec.push_back(leftVector.front());
-			leftVector.erase(leftVector.begin());
+void	PmergeMe::vectorMerge(std::vector<int>& leftVector, std::vector<int>& rightVector, std::vector<int>& vec) {
+	std::vector<int>::iterator vecIt = vec.begin();
+	std::vector<int>::iterator leftVecIt = leftVector.begin();
+	std::vector<int>::iterator rightVecIt = rightVector.begin();
+
+	while (leftVecIt != leftVector.end() && rightVecIt != rightVector.end()) {
+		if (*leftVecIt < *rightVecIt) {
+			*vecIt = *leftVecIt;
+			leftVecIt++;
 		} else {
-			vec.push_back(rightVector.front());
-			rightVector.erase(rightVector.begin());
+			*vecIt = *rightVecIt;
+			rightVecIt++;
 		}
+		vecIt++;
 	}
-	while (leftVector.size() > 0) {
-			vec.push_back(leftVector.front());
-			leftVector.erase(leftVector.begin());
+	while (leftVecIt != leftVector.end()) {
+		*vecIt = *leftVecIt;
+		leftVecIt++;
+		vecIt++;
 	}
-	while (rightVector.size() > 0) {
-			vec.push_back(rightVector.front());
-			rightVector.erase(rightVector.begin());
+	while (rightVecIt != rightVector.end()) {
+		*vecIt = *rightVecIt;
+		rightVecIt++;
+		vecIt++;
 	}
 }
 
-void	PmergeMe::VectorMergeSort(std::vector<int> &vec) {
+void	PmergeMe::vectorMergeSort(std::vector<int>& vec) {
 		if (vec.size() <= 1)
-			return	;
+			return ;
 
 		int middle = vec.size() / 2;
 		std::vector<int> leftVector = std::vector<int>(vec.begin(), vec.begin() + middle);
 		std::vector<int> rightVector = std::vector<int>(vec.begin() + middle, vec.end());
-		vec.clear();
 
-		VectorMergeSort(leftVector);
-		VectorMergeSort(rightVector);
-		VectorMerge(leftVector, rightVector, vec);
+		vectorMergeSort(leftVector);
+		vectorMergeSort(rightVector);
+		vectorMerge(leftVector, rightVector, vec);
 }
 
-void	PmergeMe::ListMerge(std::list<int> &leftList, std::list<int> &rightList, std::list<int> &lst) {
-	while (leftList.size() > 0 && rightList.size() > 0) {
-		if (leftList.front() < rightList.front()) {
-			lst.push_back(leftList.front());
-			leftList.erase(leftList.begin());
+void	PmergeMe::listMerge(std::list<int>& leftList, std::list<int>& rightList, std::list<int>& lst) {
+	std::list<int>::iterator lstIt = lst.begin();
+	std::list<int>::iterator leftListIt = leftList.begin();
+	std::list<int>::iterator rightListIt = rightList.begin();
+
+	while (leftListIt != leftList.end() && rightListIt != rightList.end()) {
+		if (*leftListIt < *rightListIt) {
+			*lstIt = *leftListIt;
+			leftListIt++;
 		} else {
-			lst.push_back(rightList.front());
-			rightList.erase(rightList.begin());
+			*lstIt = *rightListIt;
+			rightListIt++;
 		}
+		lstIt++;
 	}
-	while (leftList.size() > 0) {
-			lst.push_back(leftList.front());
-			leftList.erase(leftList.begin());
+	while (leftListIt != leftList.end()) {
+		*lstIt = *leftListIt;
+		leftListIt++;
+		lstIt++;
 	}
-	while (rightList.size() > 0) {
-			lst.push_back(rightList.front());
-			rightList.erase(rightList.begin());
+	while (rightListIt != rightList.end()) {
+		*lstIt = *rightListIt;
+		rightListIt++;
+		lstIt++;
 	}
 }
 
-void	PmergeMe::ListMergeSort(std::list<int> &lst) {
+void	PmergeMe::listMergeSort(std::list<int>& lst) {
 		if (lst.size() <= 1)
-			return	;
+			return ;
 
 		int middle = lst.size() / 2;
 		std::list<int>::iterator it = lst.begin();
@@ -225,9 +213,8 @@ void	PmergeMe::ListMergeSort(std::list<int> &lst) {
 		}
 		std::list<int> leftList(lst.begin(), it);
 		std::list<int> rightList(it, lst.end());
-		lst.clear();
 
-		ListMergeSort(leftList);
-		ListMergeSort(rightList);
-		ListMerge(leftList, rightList, lst);
+		listMergeSort(leftList);
+		listMergeSort(rightList);
+		listMerge(leftList, rightList, lst);
 }
