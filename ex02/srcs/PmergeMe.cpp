@@ -6,13 +6,14 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/12 16:26:37 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/13 21:52:02 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 #include <climits>
 #include <cstdlib>
 #include <string>
@@ -130,7 +131,7 @@ void	PmergeMe::mergeSort(char **nbArr, int arrSize) {
 	useconds_t ListDuration = (end_time.tv_sec - start_time.tv_sec) * 1000000
 		+ (end_time.tv_usec - start_time.tv_usec);
 
-	std::cout << "After:  " << getList() << std::endl;
+	std::cout << "After:  " << getVector() << std::endl;
 	std::cout << "Time to process a range of: " << vec_.size() << " elements with std::vector : " << printDuration(VectorDuration) << std::endl;
 	std::cout << "Time to process a range of: " << lst_.size() << " elements with std::list   : " << printDuration(ListDuration) << std::endl;
 }
@@ -165,6 +166,13 @@ void	PmergeMe::vectorMerge(std::vector<int>& leftVector, std::vector<int>& right
 void	PmergeMe::vectorMergeSort(std::vector<int>& vec) {
 		if (vec.size() <= 1)
 			return ;
+		if (vec.size() < 16) {
+			for(size_t i = 0; i < vec.size(); i++) {
+				for(size_t j = i; j > 0 && vec[j - 1] > vec[j]; j--) {
+					std::swap(vec[j], vec[j - 1]);
+				}
+			}
+		}
 
 		int middle = vec.size() / 2;
 		std::vector<int> leftVector = std::vector<int>(vec.begin(), vec.begin() + middle);
@@ -205,6 +213,18 @@ void	PmergeMe::listMerge(std::list<int>& leftList, std::list<int>& rightList, st
 void	PmergeMe::listMergeSort(std::list<int>& lst) {
 		if (lst.size() <= 1)
 			return ;
+
+		if (lst.size() < 16) {
+			for(std::list<int>::iterator it = lst.begin(); it != lst.end(); ++it) {
+				std::list<int>::iterator min = it;
+				for(std::list<int>::iterator it2 = it; it2 != lst.end(); ++it2) {
+					if (*it2 < *min)
+						min = it2;
+				}
+				std::swap(*it, *min);
+			}
+			return;
+		}
 
 		int middle = lst.size() / 2;
 		std::list<int>::iterator it = lst.begin();
