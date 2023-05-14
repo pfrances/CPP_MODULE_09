@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 15:56:36 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/12 12:33:27 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 11:10:31 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ public:
 	BitcoinExchange &operator=(const BitcoinExchange &other);
 	virtual ~BitcoinExchange(void);
 
-	double			doConvertion(int date, double amount) const;
+	void			printConvertion(int date, double amount) const;
 	void			convertFile(std::string filename) const;
 
 private:
@@ -56,6 +56,9 @@ private:
 		virtual const char* what() const throw();
 	};
 	class EmptyLineException : public std::exception {
+		virtual const char* what() const throw();
+	};
+	class InvalidDataException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

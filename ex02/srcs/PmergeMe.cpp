@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/13 21:52:02 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 10:51:52 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,13 +120,13 @@ void	PmergeMe::mergeSort(char **nbArr, int arrSize) {
 
 	struct timeval start_time, end_time;
 	gettimeofday(&start_time, NULL);
-	vectorMergeSort(vec_);
+	vectorMergeInsertSort(vec_);
 	gettimeofday(&end_time, NULL);
 	useconds_t VectorDuration = (end_time.tv_sec - start_time.tv_sec) * 1000000
 		+ (end_time.tv_usec - start_time.tv_usec);
 
 	gettimeofday(&start_time, NULL);
-	listMergeSort(lst_);
+	listMergeInsertSort(lst_);
 	gettimeofday(&end_time, NULL);
 	useconds_t ListDuration = (end_time.tv_sec - start_time.tv_sec) * 1000000
 		+ (end_time.tv_usec - start_time.tv_usec);
@@ -136,7 +136,7 @@ void	PmergeMe::mergeSort(char **nbArr, int arrSize) {
 	std::cout << "Time to process a range of: " << lst_.size() << " elements with std::list   : " << printDuration(ListDuration) << std::endl;
 }
 
-void	PmergeMe::vectorMerge(std::vector<int>& leftVector, std::vector<int>& rightVector, std::vector<int>& vec) {
+void	PmergeMe::vectorMergeInsert(std::vector<int>& leftVector, std::vector<int>& rightVector, std::vector<int>& vec) {
 	std::vector<int>::iterator vecIt = vec.begin();
 	std::vector<int>::iterator leftVecIt = leftVector.begin();
 	std::vector<int>::iterator rightVecIt = rightVector.begin();
@@ -163,7 +163,7 @@ void	PmergeMe::vectorMerge(std::vector<int>& leftVector, std::vector<int>& right
 	}
 }
 
-void	PmergeMe::vectorMergeSort(std::vector<int>& vec) {
+void	PmergeMe::vectorMergeInsertSort(std::vector<int>& vec) {
 		if (vec.size() <= 1)
 			return ;
 		if (vec.size() < 16) {
@@ -178,12 +178,12 @@ void	PmergeMe::vectorMergeSort(std::vector<int>& vec) {
 		std::vector<int> leftVector = std::vector<int>(vec.begin(), vec.begin() + middle);
 		std::vector<int> rightVector = std::vector<int>(vec.begin() + middle, vec.end());
 
-		vectorMergeSort(leftVector);
-		vectorMergeSort(rightVector);
-		vectorMerge(leftVector, rightVector, vec);
+		vectorMergeInsertSort(leftVector);
+		vectorMergeInsertSort(rightVector);
+		vectorMergeInsert(leftVector, rightVector, vec);
 }
 
-void	PmergeMe::listMerge(std::list<int>& leftList, std::list<int>& rightList, std::list<int>& lst) {
+void	PmergeMe::listMergeInsert(std::list<int>& leftList, std::list<int>& rightList, std::list<int>& lst) {
 	std::list<int>::iterator lstIt = lst.begin();
 	std::list<int>::iterator leftListIt = leftList.begin();
 	std::list<int>::iterator rightListIt = rightList.begin();
@@ -210,7 +210,7 @@ void	PmergeMe::listMerge(std::list<int>& leftList, std::list<int>& rightList, st
 	}
 }
 
-void	PmergeMe::listMergeSort(std::list<int>& lst) {
+void	PmergeMe::listMergeInsertSort(std::list<int>& lst) {
 		if (lst.size() <= 1)
 			return ;
 
@@ -234,7 +234,7 @@ void	PmergeMe::listMergeSort(std::list<int>& lst) {
 		std::list<int> leftList(lst.begin(), it);
 		std::list<int> rightList(it, lst.end());
 
-		listMergeSort(leftList);
-		listMergeSort(rightList);
-		listMerge(leftList, rightList, lst);
+		listMergeInsertSort(leftList);
+		listMergeInsertSort(rightList);
+		listMergeInsert(leftList, rightList, lst);
 }

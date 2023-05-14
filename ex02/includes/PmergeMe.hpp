@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/10 16:47:07 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/12 16:26:53 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 10:47:14 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ private:
 
 	static bool				ConvertNbWithCheck(char *nbStr, int *nb);
 
-	static void				vectorMergeSort(std::vector<int>& vec);
-	static void				vectorMerge(std::vector<int>& leftVector, std::vector<int>& rightVector, std::vector<int>& vec);
+	static void				vectorMergeInsertSort(std::vector<int>& vec);
+	static void				vectorMergeInsert(std::vector<int>& leftVector, std::vector<int>& rightVector, std::vector<int>& vec);
 
-	static void				listMergeSort(std::list<int>& lst);
-	static void				listMerge(std::list<int>& leftList, std::list<int>& rightList, std::list<int>& lst);
+	static void				listMergeInsertSort(std::list<int>& lst);
+	static void				listMergeInsert(std::list<int>& leftList, std::list<int>& rightList, std::list<int>& lst);
 
 	static std::string		getVector(void);
 	static std::string		getList(void);
