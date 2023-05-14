@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/14 11:22:49 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 11:36:50 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,10 @@ BitcoinExchange::BitcoinExchange(std::string& dataFilename) {
 	bool		error = false;
 
 	std::getline(data, line);
-
+	if (line != "date,exchange_rate") {
+		data.close();
+		throw BitcoinExchange::InvalidDataHeaderLine();
+	}
 	while (std::getline(data, line)) {
 		try {
 			parseLine(line, ',', date, price);
@@ -196,13 +199,17 @@ void BitcoinExchange::convertFile(std::string filename) const {
 		std::cout << "⚠ Failed to open " << filename << std::endl;
 		return ;
 	}
-	std::cout << "	[Converting " << filename << "] start." << std::endl;
 
 	std::string line;
 	int		date;
 	double	amount;
 	int		lineNum = 2;
 	std::getline(input, line);
+	if (line != "date | value") {
+		input.close();
+		throw BitcoinExchange::InvalidInputFileHeaderLine();
+	}
+	std::cout << "	[Converting " << filename << "] start." << std::endl;
 	while (std::getline(input, line)) {
 		try {
 			parseLine(line, '|', date, amount);
@@ -247,4 +254,12 @@ const char* BitcoinExchange::NoDatabaseException::what() const throw() {
 
 const char* BitcoinExchange::InvalidDataException::what() const throw() {
 	return "	⚠ ⚠ ⚠ ⚠ 	data.csv is invalid	⚠ ⚠ ⚠ ⚠";
+}
+
+const char* BitcoinExchange::InvalidDataHeaderLine::what() const throw() {
+	return "[data.csv] Invalid header line. Expected: \"date,exchange_rate\"";
+}
+
+const char* BitcoinExchange::InvalidInputFileHeaderLine::what() const throw() {
+	return "[input file] Invalid header line. Expected: \"date | value\"";
 }
