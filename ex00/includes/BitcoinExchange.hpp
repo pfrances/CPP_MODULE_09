@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 15:56:36 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/14 11:31:39 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 12:28:05 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,14 @@ private:
 	class InvalidDataException : public std::exception {
 		virtual const char* what() const throw();
 	};
-	class InvalidDataHeaderLine : public std::exception {
-		virtual const char* what() const throw();
-	};
-	class InvalidInputFileHeaderLine : public std::exception {
-		virtual const char* what() const throw();
+	class InvalidHeaderLine : public std::exception {
+		public:
+			std::string const& getMessage(void) const throw();
+			InvalidHeaderLine(std::string const& filename, std::string const& expectedLine);
+			virtual ~InvalidHeaderLine() throw();
+		private:
+			virtual const char* what() const throw();
+			std::string message_;
 	};
 };
 

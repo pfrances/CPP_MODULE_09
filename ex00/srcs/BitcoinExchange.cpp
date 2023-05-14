@@ -6,7 +6,7 @@
 /*   By: pfrances <pfrances@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:29:33 by pfrances          #+#    #+#             */
-/*   Updated: 2023/05/14 11:36:50 by pfrances         ###   ########.fr       */
+/*   Updated: 2023/05/14 12:28:23 by pfrances         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ BitcoinExchange::BitcoinExchange(std::string& dataFilename) {
 	std::getline(data, line);
 	if (line != "date,exchange_rate") {
 		data.close();
-		throw BitcoinExchange::InvalidDataHeaderLine();
+		throw BitcoinExchange::InvalidHeaderLine(dataFilename, "date,exchange_rate");
 	}
 	while (std::getline(data, line)) {
 		try {
@@ -52,6 +52,10 @@ BitcoinExchange::BitcoinExchange(std::string& dataFilename) {
 		lineNum++;
 	}
 	data.close();
+	if (lineNum == 2) {
+		std::cout << "⚠ [" << dataFilename << "] Error: no data" << std::endl;
+		error = true;
+	}
 	if (error) {
 		throw BitcoinExchange::InvalidDataException();
 	}
@@ -207,7 +211,7 @@ void BitcoinExchange::convertFile(std::string filename) const {
 	std::getline(input, line);
 	if (line != "date | value") {
 		input.close();
-		throw BitcoinExchange::InvalidInputFileHeaderLine();
+		throw BitcoinExchange::InvalidHeaderLine(filename, "date | value");
 	}
 	std::cout << "	[Converting " << filename << "] start." << std::endl;
 	while (std::getline(input, line)) {
@@ -219,6 +223,9 @@ void BitcoinExchange::convertFile(std::string filename) const {
 		}
 		lineNum++;
 
+	}
+	if (lineNum == 2) {
+		std::cout << "⚠ [" << filename << "] Error: no data" << std::endl;
 	}
 	input.close();
 	std::cout << "	[Converting " << filename << "] done." << std::endl;
@@ -256,10 +263,19 @@ const char* BitcoinExchange::InvalidDataException::what() const throw() {
 	return "	⚠ ⚠ ⚠ ⚠ 	data.csv is invalid	⚠ ⚠ ⚠ ⚠";
 }
 
-const char* BitcoinExchange::InvalidDataHeaderLine::what() const throw() {
-	return "[data.csv] Invalid header line. Expected: \"date,exchange_rate\"";
+BitcoinExchange::InvalidHeaderLine::InvalidHeaderLine(std::string const& filename, std::string const& expectedLine)
+	: std::exception() {
+	this->message_ = "[" + filename + "] Invalid header line. Expected: \"" + expectedLine + "\"";
 }
 
-const char* BitcoinExchange::InvalidInputFileHeaderLine::what() const throw() {
-	return "[input file] Invalid header line. Expected: \"date | value\"";
+BitcoinExchange::InvalidHeaderLine::~InvalidHeaderLine() throw() {
+
+}
+
+std::string const& BitcoinExchange::InvalidHeaderLine::getMessage() const throw() {
+	return this->message_;
+}
+
+const char* BitcoinExchange::InvalidHeaderLine::what() const throw() {
+	return this->message_.c_str();
 }
